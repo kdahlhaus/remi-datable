@@ -3,6 +3,7 @@ import remi.gui as gui
 import logging
 log = logging.getLogger("datatable")
 
+import json
 
 class DataTableWithDomData(gui.Widget):
 
@@ -10,6 +11,7 @@ class DataTableWithDomData(gui.Widget):
     def __init__(self, data_table_options={}, **kwargs):
         "data_table_options = dictionay of data table options.  see  https://datatables.net/reference/option/"
         self.rows=[]
+        self.column_headings=[]
         self.data_table_options=data_table_options
         log.debug("DataTable.__iniit__ kwargs=%s"%kwargs)
         super(DataTableWithDomData, self).__init__(**kwargs)
@@ -55,5 +57,65 @@ class DataTableWithDomData(gui.Widget):
                 $('#%s').DataTable({%s});
             } );
         </script>"""%(table_id, data_table_options_string)
+        #log.debug("datatable repr returning: %s"%html)
 
         return html
+
+
+class DataTableWithServerSideProcessing(DataTableWithDomData):
+    """https://datatables.net/manual/server-side"""
+
+    @gui.decorate_constructor_parameter_types([object, dict,  ])
+    def __init__(self, app, data_table_options={}, **kwargs):
+        """ app = the App instance
+            data_table_options = dictionary of data table options.  see  https://datatables.net/reference/option/
+        """
+        self.app = app
+        data_table_options["serverSide"]='true'
+        super(DataTableWithServerSideProcessing, self).__init__( data_table_options, **kwargs)
+        self.data_table_options["ajax"]="""function(data, callback, settings)
+            {{
+            console.log("DTWSP ajac data req "+data["draw"]);
+            if (typeof(window.data_table_callbacks)=='undefined'){{ window.data_table_callbacks = new Map(); console.log('added dtc'); }} else {{ console.log('already added dtc'); }}
+            window.data_table_callbacks['{identifier}']=callback
+            sendCallbackParam('{identifier}', '_onDataRequest', {{'data':JSON.stringify(data), 'callback':callback}});
+            }}""".format(identifier=self.identifier)
+
+            #/*callback({{"draw":data["draw"], "recordsTotal":2, "recordsFiltered":2, "data":[["One nigh","Bob","80s","2:14"],["Money","Pink F", "Prog", "7:36"]]}});*/
+
+
+
+    def _onDataRequest(self, *args, **kwargs):
+        log.debug("onDataRequest(%s, %s)"%(args, kwargs))
+        data = json.loads(kwargs["data"])
+        draw = data["draw"]
+        start = data["start"]
+        length = data["length"]
+        search = data["search"]["value"]
+        callback = kwargs["callback"]
+        log.debug(f"params  draw:{draw} start:{start} length:{length} search:{search} ")
+
+        records_total = 25
+        records_filtered = 25
+
+
+        data =[]
+        for i in range(start, min(length+start, records_total)):
+            data.append(["One night %d"%i, "Bob", "80s", "2:15"])
+
+        response = {}
+        response["draw"]=draw
+        response["recordsTotal"]=records_total
+        response["recordsFiltered"]=records_filtered
+        response["data"]=data
+
+        data_json = json.dumps(response)
+        log.debug("response: %s"%data_json)
+
+        #js = """window.data_table_callbacks['{identifier}']({{"draw":{draw}, "recordsTotal":{records_total}, "recordsFiltered":{records_filtered}, "data":[["One nigh","Bob","80s","2:14"],["Money","Pink F", "Prog", "7:36"]]}});""".format(identifier=self.identifier, draw=draw, records_total=records_total, records_filtered=records_filtered)
+        js = """window.data_table_callbacks['{identifier}']({json});""".format(identifier=self.identifier, draw=draw, records_total=records_total, records_filtered=records_filtered, json=data_json)
+        log.debug(js)
+        self.app.execute_javascript(js)
+
+
+
