@@ -84,7 +84,6 @@ class DataTableWithServerSideProcessing(DataTableWithDomData):
             #/*callback({{"draw":data["draw"], "recordsTotal":2, "recordsFiltered":2, "data":[["One nigh","Bob","80s","2:14"],["Money","Pink F", "Prog", "7:36"]]}});*/
 
 
-
     def _onDataRequest(self, *args, **kwargs):
         log.debug("onDataRequest(%s, %s)"%(args, kwargs))
         data = json.loads(kwargs["data"])
@@ -92,16 +91,34 @@ class DataTableWithServerSideProcessing(DataTableWithDomData):
         start = data["start"]
         length = data["length"]
         search = data["search"]["value"]
+        order = data["order"][0]
         callback = kwargs["callback"]
-        log.debug(f"params  draw:{draw} start:{start} length:{length} search:{search} ")
+        log.debug(f"params  draw:{draw} start:{start} length:{length} search:{search} order:{order}")
 
-        records_total = 25
-        records_filtered = 25
+        import sample_data
+
+        if search != "":
+            filtered_data = []
+            for r in sample_data.data:
+                if search in str(r):
+                    filtered_data.append(r)
+        else:
+            filtered_data = sample_data.data
+
+        records_total = len(sample_data.data)
+        records_filtered = len(filtered_data)
 
 
         data =[]
-        for i in range(start, min(length+start, records_total)):
-            data.append(["One night %d"%i, "Bob", "80s", "2:15"])
+        for i in range(start, min(length+start, records_filtered)):
+            sd = filtered_data[i]
+            data.append([sd[0], sd[1], sd[2], sd[3]])
+
+        from operator import itemgetter
+        col_index = order["column"]
+        ascending = order["dir"]=="asc"
+        data.sort(key=itemgetter(col_index), reverse=(not ascending))
+
 
         response = {}
         response["draw"]=draw
@@ -113,6 +130,7 @@ class DataTableWithServerSideProcessing(DataTableWithDomData):
         log.debug("response: %s"%data_json)
 
         #js = """window.data_table_callbacks['{identifier}']({{"draw":{draw}, "recordsTotal":{records_total}, "recordsFiltered":{records_filtered}, "data":[["One nigh","Bob","80s","2:14"],["Money","Pink F", "Prog", "7:36"]]}});""".format(identifier=self.identifier, draw=draw, records_total=records_total, records_filtered=records_filtered)
+
         js = """window.data_table_callbacks['{identifier}']({json});""".format(identifier=self.identifier, draw=draw, records_total=records_total, records_filtered=records_filtered, json=data_json)
         log.debug(js)
         self.app.execute_javascript(js)
