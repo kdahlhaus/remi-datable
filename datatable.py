@@ -1,8 +1,5 @@
 import remi.gui as gui
 
-import logging
-log = logging.getLogger("datatable")
-
 import json
 
 class DataTable(gui.Widget):
@@ -76,8 +73,7 @@ class DataTableWithServerSideProcessing(DataTable):
         super(DataTableWithServerSideProcessing, self).__init__( data_table_options, **kwargs)
         self.data_table_options["ajax"]="""function(data, callback, settings)
             {{
-            console.log("DTWSP ajac data req "+data["draw"]);
-            if (typeof(window.data_table_callbacks)=='undefined'){{ window.data_table_callbacks = new Map(); console.log('added dtc'); }} else {{ console.log('already added dtc'); }}
+            if (typeof(window.data_table_callbacks)=='undefined'){{ window.data_table_callbacks = new Map(); }}
             window.data_table_callbacks['{identifier}']=callback
             sendCallbackParam('{identifier}', '_onDataRequest', {{'request':JSON.stringify(data), 'callback':callback}});
             }}
@@ -85,31 +81,28 @@ class DataTableWithServerSideProcessing(DataTable):
 
             #/*callback({{"draw":data["draw"], "recordsTotal":2, "recordsFiltered":2, "data":[["One nigh","Bob","80s","2:14"],["Money","Pink F", "Prog", "7:36"]]}});*/
 
-
     def _onDataRequest(self, *args, **kwargs):
         """ parse raw request from front-end and call onData(....) """
-        log.debug("onDataRequest(%s, %s)"%(args, kwargs))
-
-        # the full contents of request is documented here:
-        #   https://datatables.net/manual/server-side
         request = json.loads(kwargs["request"])
-
-        draw = request["draw"]
-        start = request["start"]
-        length = request["length"]
-        search = request["search"]["value"]
-        order = request["order"][0]
-
-        response = self.onDataRequest(draw, start, length, search, order, **kwargs)
-
+        response = self.onDataRequest(request)
         response_json = json.dumps(response)
-        log.debug("response: %s"%response_json)
-
         js = """window.data_table_callbacks['{identifier}']({json});""".format(identifier=self.identifier, json=response_json)
-        log.debug(js)
         self.app.execute_javascript(js)
 
+    def onDataRequest(self, request):
+        """ request: request object as documented at:
+                https://datatables.net/manual/server-side
 
-    def onDataRequest(self, draw, start, length, search, order, **kwargs):
-        """ return response dictionary as defined at https://datatables.net/manual/server-side """
+            return a response dictionary as defined in:
+                https://datatables.net/manual/server-side
+
+                for example:
+
+                   response = {}
+                   response["draw"]=request["draw"]
+                   response["recordsTotal"]=total_number_of_records
+                   response["recordsFiltered"]=number_of_records_after_filtering
+                   response["data"]=[ ["row1 col1", "row1 col2",...], ...]
+                   return response
+        """
         raise NotImplementedError

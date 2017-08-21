@@ -9,8 +9,7 @@ from remi import start, App
 
 from datatable import DataTableWithServerSideProcessing
 
-#                ("Title","Artist","Genre","Length")
-music_data = (   ("Soul Man","Blues Brothers","Blues","2:52"),
+sample_data = (  ("Soul Man","Blues Brothers","Blues","2:52"),
                  ("Another Brick in the Wall","Pink Floyd", "Progressive Rock", "5:35"),
                  ("Feier Frei!","Rammstein","Hard Rock","3:10"),
                  ("Walk Like an Egyptian","Bangles","80's","3:10"),
@@ -37,23 +36,30 @@ music_data = (   ("Soul Man","Blues Brothers","Blues","2:52"),
 
 class ServerSideMusicDataTable(DataTableWithServerSideProcessing):
 
-    def onDataRequest(self, draw, start, length, search, order, **kwargs):
+    def onDataRequest(self, request):
+
+        # the full contents of request is documented here:
+        #   https://datatables.net/manual/server-side
+        start = request["start"]
+        length = request["length"]
+        search = request["search"]["value"]
+        order = request["order"][0]
 
         # filter based on search parameter
         if search != "":
             filtered_data = []
-            for r in music_data:
+            for r in sample_data:
                 if search in str(r):
                     filtered_data.append(r)
         else:
-            filtered_data = music_data
+            filtered_data = sample_data
 
-        records_total = len(music_data)
-        records_filtered = len(filtered_data)
+        num_records_total = len(sample_data)
+        num_records_after_filtering = len(filtered_data)
 
         # paginate
         data =[]
-        for i in range(start, min(length+start, records_filtered)):
+        for i in range(start, min(length+start, num_records_after_filtering)):
             sd = filtered_data[i]
             data.append([sd[0], sd[1], sd[2], sd[3]])
 
@@ -64,9 +70,9 @@ class ServerSideMusicDataTable(DataTableWithServerSideProcessing):
 
         # build response object
         response = {}
-        response["draw"]=draw
-        response["recordsTotal"]=records_total
-        response["recordsFiltered"]=records_filtered
+        response["draw"]=request["draw"]
+        response["recordsTotal"]=num_records_total
+        response["recordsFiltered"]=num_records_after_filtering
         response["data"]=data
 
         return response
