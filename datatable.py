@@ -5,22 +5,15 @@ log = logging.getLogger("datatable")
 
 import json
 
-class DataTableFromDomData(gui.Widget):
-    """ DataTable that uses data from the DOM """
-
+class DataTable(gui.Widget):
     @gui.decorate_constructor_parameter_types([dict,  ])
     def __init__(self, data_table_options={}, **kwargs):
         "data_table_options = dictionay of data table options.  see  https://datatables.net/reference/option/"
         self.rows=[]
         self.column_headings=[]
         self.data_table_options=data_table_options
-        super(DataTableFromDomData, self).__init__(**kwargs)
+        super(DataTable, self).__init__(**kwargs)
 
-    def set_column_headings(self, headings):
-        self.column_headings = headings
-
-    def add_row(self, row):
-        self.rows.append(row)
 
     def repr(self, client, changed_widgets={}):
         self.attributes['style'] = gui.jsonize(self.style)
@@ -57,7 +50,18 @@ class DataTableFromDomData(gui.Widget):
         return html
 
 
-class DataTableWithServerSideProcessing(DataTableFromDomData):
+class DataTableFromDomData(DataTable):
+    """ DataTable that uses data from the DOM """
+
+    def set_column_headings(self, headings):
+        self.column_headings = headings
+
+    def add_row(self, row):
+        self.rows.append(row)
+
+
+
+class DataTableWithServerSideProcessing(DataTable):
     """ DataTable that uses onDataRequest handler in python to
         provide data.
     """
@@ -83,11 +87,12 @@ class DataTableWithServerSideProcessing(DataTableFromDomData):
 
 
     def _onDataRequest(self, *args, **kwargs):
+        """ parse raw request from front-end and call onData(....) """
         log.debug("onDataRequest(%s, %s)"%(args, kwargs))
 
         # the full contents of request is documented here:
         #   https://datatables.net/manual/server-side
-        request = json.loads(kwargs["data"])
+        request = json.loads(kwargs["request"])
 
         draw = request["draw"]
         start = request["start"]
@@ -104,6 +109,7 @@ class DataTableWithServerSideProcessing(DataTableFromDomData):
         log.debug(js)
         self.app.execute_javascript(js)
 
+
     def onDataRequest(self, draw, start, length, search, order, **kwargs):
-        """ return json object as defined at https://datatables.net/manual/server-side """
+        """ return response dictionary as defined at https://datatables.net/manual/server-side """
         raise NotImplementedError
