@@ -6,30 +6,31 @@ from remi import start, App
 from datatable import DataTableFromDomData
 
 
-data = ( ("Title","Artist","Genre","Length"),
-         ("Soul Man","Blues Brothers","Blues","2:52"),
-         ("Another Brick in the Wall","Pink Floyd", "Progressive Rock", "5:35"),
-         ("Feier Frei!","Rammstein","Hard Rock","3:10"),
-         ("Walk Like an Egyptian","Bangles","80's","3:10"),
-         ("46 and 2","Tool","Hard Rock","2:15"),
-         ("I Ran","Flock of Seagulls","80's","3:12"),
-         ("Jackson","Johnny Cash","Country","1:10"),
-         ("Pop Music","M Factor","Pop","3:40"),
-         ("Du Hast","Rammstein","Hard Rock","3:10"),
-         ("Engel","Rammstein","Hard Rock","3:10"),
-         ("Tubular Bells","Mike Oldfield","Progressive Rock","12:10"),
-         ("Soul Man 2","Blues Brothers","Blues","2:52"),
-         ("Another Brick in the Wall 2","Pink Floyd", "Progressive Rock", "5:35"),
-         ("Feier Frei! 2","Rammstein","Hard Rock","3:10"),
-         ("Walk Like an Egyptian 2","Bangles","80's","3:10"),
-         ("46 and 2 2","Tool","Hard Rock","2:15"),
-         ("I Ran 2","Flock of Seagulls","80's","3:12"),
-         ("Jackson 2","Johnny Cash","Country","1:10"),
-         ("Pop Music 2","M Factor","Pop","3:40"),
-         ("Du Hast 2","Rammstein","Hard Rock","3:10"),
-         ("Engel 2","Rammstein","Hard Rock","3:10"),
-         ("Tubular Bells 2" ,"Mike Oldfield","Progressive Rock","12:10"),
-       )
+data = (
+    ("Title", "Artist", "Genre", "Length"),
+    ("Soul Man", "Blues Brothers", "Blues", "2:52"),
+    ("Another Brick in the Wall", "Pink Floyd",  "Progressive Rock",  "5:35"),
+    ("Feier Frei!", "Rammstein", "Hard Rock", "3:10"),
+    ("Walk Like an Egyptian", "Bangles", "80's", "3:10"),
+    ("46 and 2", "Tool", "Hard Rock", "2:15"),
+    ("I Ran", "Flock of Seagulls", "80's", "3:12"),
+    ("Jackson", "Johnny Cash", "Country", "1:10"),
+    ("Pop Music", "M Factor", "Pop", "3:40"),
+    ("Du Hast", "Rammstein", "Hard Rock", "3:10"),
+    ("Engel", "Rammstein", "Hard Rock", "3:10"),
+    ("Tubular Bells", "Mike Oldfield", "Progressive Rock", "12:10"),
+    ("Soul Man 2", "Blues Brothers", "Blues", "2:52"),
+    ("Another Brick in the Wall 2", "Pink Floyd",  "Progressive Rock",  "5:35"),
+    ("Feier Frei! 2", "Rammstein", "Hard Rock", "3:10"),
+    ("Walk Like an Egyptian 2", "Bangles", "80's", "3:10"),
+    ("46 and 2 2", "Tool", "Hard Rock", "2:15"),
+    ("I Ran 2", "Flock of Seagulls", "80's", "3:12"),
+    ("Jackson 2", "Johnny Cash", "Country", "1:10"),
+    ("Pop Music 2", "M Factor", "Pop", "3:40"),
+    ("Du Hast 2", "Rammstein", "Hard Rock", "3:10"),
+    ("Engel 2", "Rammstein", "Hard Rock", "3:10"),
+    ("Tubular Bells 2", "Mike Oldfield", "Progressive Rock", "12:10"),
+)
 
 
 class ExampleFrame(gui.VBox):
@@ -39,13 +40,15 @@ class ExampleFrame(gui.VBox):
         self.row1 = gui.HBox()
         self.append(self.row1)
 
-        self.table = DataTableFromDomData( {'paging':'true',
-            'scrollY':'"200px"',
-            'scrollCollapse':'false',
-            'lengthChange':'false',
-            'select':"'single'",
-            'colReorder':'true' },
-            style={"height":"300px", "float":"right"})
+        self.table = DataTableFromDomData(
+            {'paging': 'true',
+             'scrollY': '"200px"',
+             'scrollCollapse': 'false',
+             'lengthChange': 'false',
+             'select': "'single'",
+             'colReorder': 'true'
+             },
+            style={"height": "300px", "float": "right"})
         self.row1.append(self.table)
 
         self.table.set_column_headings(data[0])
