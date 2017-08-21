@@ -5,7 +5,8 @@ log = logging.getLogger("datatable")
 
 import json
 
-class DataTableWithDomData(gui.Widget):
+class DataTableFromDomData(gui.Widget):
+    """ DataTable that uses data from the DOM """
 
     @gui.decorate_constructor_parameter_types([dict,  ])
     def __init__(self, data_table_options={}, **kwargs):
@@ -13,10 +14,7 @@ class DataTableWithDomData(gui.Widget):
         self.rows=[]
         self.column_headings=[]
         self.data_table_options=data_table_options
-        log.debug("DataTable.__iniit__ kwargs=%s"%kwargs)
-        super(DataTableWithDomData, self).__init__(**kwargs)
-        log.debug("DT style after init %s"%(self.style))
-        log.debug("DT attributes after init %s"%(self.attributes))
+        super(DataTableFromDomData, self).__init__(**kwargs)
 
     def set_column_headings(self, headings):
         self.column_headings = headings
@@ -25,8 +23,6 @@ class DataTableWithDomData(gui.Widget):
         self.rows.append(row)
 
     def repr(self, client, changed_widgets={}):
-        #log.debug("datatable repr self.style:%s"%str(self.style))
-        #log.debug("datatable repr self.attributes:%s"%str(self.attributes))
         self.attributes['style'] = gui.jsonize(self.style)
         attribute_string = ' '.join('%s="%s"' % (k, v) if v is not None else k for k, v in
                                                 self.attributes.items())
@@ -57,13 +53,14 @@ class DataTableWithDomData(gui.Widget):
                 $('#%s').DataTable({%s});
             } );
         </script>"""%(table_id, data_table_options_string)
-        #log.debug("datatable repr returning: %s"%html)
 
         return html
 
 
-class DataTableWithServerSideProcessing(DataTableWithDomData):
-    """https://datatables.net/manual/server-side"""
+class DataTableWithServerSideProcessing(DataTableFromDomData):
+    """ DataTable that uses onDataRequest handler in python to
+        provide data.
+    """
 
     @gui.decorate_constructor_parameter_types([object, dict,  ])
     def __init__(self, app, data_table_options={}, **kwargs):
@@ -78,62 +75,35 @@ class DataTableWithServerSideProcessing(DataTableWithDomData):
             console.log("DTWSP ajac data req "+data["draw"]);
             if (typeof(window.data_table_callbacks)=='undefined'){{ window.data_table_callbacks = new Map(); console.log('added dtc'); }} else {{ console.log('already added dtc'); }}
             window.data_table_callbacks['{identifier}']=callback
-            sendCallbackParam('{identifier}', '_onDataRequest', {{'data':JSON.stringify(data), 'callback':callback}});
-            }}""".format(identifier=self.identifier)
+            sendCallbackParam('{identifier}', '_onDataRequest', {{'request':JSON.stringify(data), 'callback':callback}});
+            }}
+        """.format(identifier=self.identifier)
 
             #/*callback({{"draw":data["draw"], "recordsTotal":2, "recordsFiltered":2, "data":[["One nigh","Bob","80s","2:14"],["Money","Pink F", "Prog", "7:36"]]}});*/
 
 
     def _onDataRequest(self, *args, **kwargs):
         log.debug("onDataRequest(%s, %s)"%(args, kwargs))
-        data = json.loads(kwargs["data"])
-        draw = data["draw"]
-        start = data["start"]
-        length = data["length"]
-        search = data["search"]["value"]
-        order = data["order"][0]
-        callback = kwargs["callback"]
-        log.debug(f"params  draw:{draw} start:{start} length:{length} search:{search} order:{order}")
 
-        import sample_data
+        # the full contents of request is documented here:
+        #   https://datatables.net/manual/server-side
+        request = json.loads(kwargs["data"])
 
-        if search != "":
-            filtered_data = []
-            for r in sample_data.data:
-                if search in str(r):
-                    filtered_data.append(r)
-        else:
-            filtered_data = sample_data.data
+        draw = request["draw"]
+        start = request["start"]
+        length = request["length"]
+        search = request["search"]["value"]
+        order = request["order"][0]
 
-        records_total = len(sample_data.data)
-        records_filtered = len(filtered_data)
+        response = self.onDataRequest(draw, start, length, search, order, **kwargs)
 
+        response_json = json.dumps(response)
+        log.debug("response: %s"%response_json)
 
-        data =[]
-        for i in range(start, min(length+start, records_filtered)):
-            sd = filtered_data[i]
-            data.append([sd[0], sd[1], sd[2], sd[3]])
-
-        from operator import itemgetter
-        col_index = order["column"]
-        ascending = order["dir"]=="asc"
-        data.sort(key=itemgetter(col_index), reverse=(not ascending))
-
-
-        response = {}
-        response["draw"]=draw
-        response["recordsTotal"]=records_total
-        response["recordsFiltered"]=records_filtered
-        response["data"]=data
-
-        data_json = json.dumps(response)
-        log.debug("response: %s"%data_json)
-
-        #js = """window.data_table_callbacks['{identifier}']({{"draw":{draw}, "recordsTotal":{records_total}, "recordsFiltered":{records_filtered}, "data":[["One nigh","Bob","80s","2:14"],["Money","Pink F", "Prog", "7:36"]]}});""".format(identifier=self.identifier, draw=draw, records_total=records_total, records_filtered=records_filtered)
-
-        js = """window.data_table_callbacks['{identifier}']({json});""".format(identifier=self.identifier, draw=draw, records_total=records_total, records_filtered=records_filtered, json=data_json)
+        js = """window.data_table_callbacks['{identifier}']({json});""".format(identifier=self.identifier, json=response_json)
         log.debug(js)
         self.app.execute_javascript(js)
 
-
-
+    def onDataRequest(self, draw, start, length, search, order, **kwargs):
+        """ return json object as defined at https://datatables.net/manual/server-side """
+        raise NotImplementedError
