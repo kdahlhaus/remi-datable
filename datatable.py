@@ -76,11 +76,11 @@ class DataTableWithServerSideProcessing(DataTable):
         super(DataTableWithServerSideProcessing, self).__init__(data_table_options, **kwargs)
         self.data_table_options["ajax"] = """function(data, callback, settings)
             {{
-            if (typeof(window.data_table_callbacks)=='undefined')
-            {{ window.data_table_callbacks = new Map(); }}
-            window.data_table_callbacks['{identifier}']=callback
-            sendCallbackParam('{identifier}', '_onDataRequest',
-                {{'request':JSON.stringify(data), 'callback':callback}});
+                if (typeof(window.data_table_callbacks)=='undefined')
+                {{ window.data_table_callbacks = new Map(); }}
+
+                window.data_table_callbacks['{identifier}']=callback
+                sendCallbackParam('{identifier}', '_onDataRequest', {{'request':JSON.stringify(data), 'callback':callback}});
             }}
         """.format(identifier=self.identifier)
 
