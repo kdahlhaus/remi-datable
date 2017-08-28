@@ -108,7 +108,7 @@ class ExampleFrame(gui.VBox):
              },
             style={"height": "300px", "width": "700px"}
         )
-        self.row1.append(self.table)
+        self.row1.append(self.table, "the_table")
 
 
 class MyApp(App):
