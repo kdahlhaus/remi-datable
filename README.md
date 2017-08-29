@@ -38,3 +38,13 @@ Example
 
 Examples are located in the 'examples' directory.
 
+
+To-Do
+-----
+
+* work out event handling
+* demo hidden-column for identifying a row
+* demo on click handler for a row
+* docs
+* tests
+
