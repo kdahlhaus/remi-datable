@@ -9,6 +9,10 @@ Overview
 
 A jQuery DataTables widget for the Remi GUI.
 
+
+![ScreenShot](/docs/source/remidatatable.png?raw=true)
+
+
 NOTE: Event handling, docs,  and tests are still a work in progress.
 
 Installation / Usage
