@@ -36,7 +36,7 @@ Contributions are welcome.  Just fork and submit a pull-request.
 Example
 -------
 
-Examples are located in the 'examples' directory.
+Examples are located in the [example](https://github.com/kdahlhaus/remi-datable/tree/master/example) directory.
 
 
 To-Do
