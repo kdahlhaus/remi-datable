@@ -18,12 +18,13 @@ NOTE: Event handling, docs,  and tests are still a work in progress.
 Installation / Usage
 --------------------
 
+<!--
 To install use pip:
 
     $ pip install remidatatable
+-->
 
-
-Or clone the repo:
+To install, clone the repo:
 
     $ git clone https://github.com/kdahlhaus/remidatatable.git
     $ python setup.py install
