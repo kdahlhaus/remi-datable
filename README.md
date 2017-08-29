@@ -9,6 +9,8 @@ Overview
 
 A jQuery DataTables widget for the Remi GUI.
 
+NOTE: the ancillary files (setup, docs, ...) are still a work in progress.
+
 Installation / Usage
 --------------------
 
@@ -21,7 +23,7 @@ Or clone the repo:
 
     $ git clone https://github.com/kdahlhaus/remidatatable.git
     $ python setup.py install
-    
+
 Contributing
 ------------
 
