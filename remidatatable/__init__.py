@@ -29,7 +29,7 @@ class DataTable(gui.Widget):
 
         tbody = '<tbody>'
         for row in self.rows:
-            trow = '<tr>'
+            trow = """<tr draggable="True" ondragstart="event.dataTransfer.setData('application/json', JSON.stringify(['140158203522744', '140158203522296']));">"""
             for col in row:
                 trow += "<td>"+str(col)+"</td>"
             trow += '</tr>'
@@ -41,11 +41,35 @@ class DataTable(gui.Widget):
         for key in self.data_table_options:
             data_table_options_string += "%s:%s, " % (key, self.data_table_options[key])
 
+        """
+
+        $("#140159864903776_table > tbody > tr").each(function(){ $(this).children().each(function(){console.log($(this).text())}) })
+        t.columns().header()[0].innerText
+
+        col_names = []
+
+
+
+        """
+
+
         html += """
-            $(document).ready( function () {
-                $('#%s').DataTable({%s});
-            } );
-        </script>""" % (table_id, data_table_options_string)
+           function set_handlers(table)
+            {
+                var col_names=[];
+                $(table.columns().header()).each(function(){ col_names.push(this.innerText); })
+                console.log(col_names);
+                /*table.$("tbody > tr").each(function(){
+                    var col_values=[]
+                */
+            }"""
+
+        html += """
+            $(document).ready(function(){{
+                var dt = $('#{table_id}').DataTable({{${data_table_options_string}}});
+                $('#{table_id}').on('draw.dt', function(){{ console.log("table #{table_id} redrawn"); set_handlers(dt); }});
+            }});
+        </script>""".format(table_id=table_id, data_table_options_string=data_table_options_string)
 
         return html
 
