@@ -39,7 +39,7 @@ class DataTable(gui.Widget):
 
         tbody = '<tbody>'
         for row in self.rows:
-            trow = """<tr draggable="True" ondragstart="event.dataTransfer.setData('application/json', JSON.stringify(['140158203522744', '140158203522296']));">"""
+            trow = """<tr>"""
             for col in row:
                 trow += "<td>"+str(col)+"</td>"
             trow += '</tr>'
