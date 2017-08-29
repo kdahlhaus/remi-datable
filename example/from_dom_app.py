@@ -1,9 +1,12 @@
+import sys
+sys.path.append("..")
+
 import os
 
 import remi.gui as gui
 from remi import start, App
 
-from datatable import DataTableFromDomData
+from remidatatable import DataTableFromDomData
 
 
 data = (
