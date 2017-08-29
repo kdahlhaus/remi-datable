@@ -1,9 +1,19 @@
 import remi.gui as gui
 
 import json
+import os
+
+
 
 
 class DataTable(gui.Widget):
+
+    @staticmethod
+    def get_res_path():
+       """ return addtion to 'res' path for items needed by this lib """
+       res_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'res')
+       return res_path
+
     @gui.decorate_constructor_parameter_types([dict, ])
     def __init__(self, data_table_options={}, **kwargs):
         """data_table_options = dictionay of data table options.

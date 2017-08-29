@@ -1,3 +1,6 @@
+import sys
+sys.path.append("..")
+
 import logging
 
 import operator
@@ -6,7 +9,7 @@ import os
 import remi.gui as gui
 from remi import start, App
 
-from datatable import DataTableWithServerSideProcessing
+from remidatatable import DataTableWithServerSideProcessing
 
 sample_data = (
     ("Soul Man", "Blues Brothers", "Blues", "2:52"),
@@ -117,7 +120,7 @@ class MyApp(App):
         # Copy the contents of remi-datatabe/res to your own app's res
         # directory and remove the '..' path segment from the following
         # line when using remi-datatable in your own apps.
-        res_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..',  'res')
+        res_path = DataTableWithServerSideProcessing.get_res_path()
         html_head = """
             <link rel="stylesheet" type="text/css" href="/res/datatables.css"/>
             <script type="text/javascript" src="/res/datatables.min.js"></script>

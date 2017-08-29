@@ -61,7 +61,7 @@ class ExampleFrame(gui.VBox):
 
 class MyApp(App):
     def __init__(self, *args):
-        res_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'res')
+        res_path = DataTableFromDomData.get_res_path()
         html_head = """
             <link rel="stylesheet" type="text/css" href="/res/datatables.css"/>
             <script type="text/javascript" src="/res/datatables.min.js"></script>
