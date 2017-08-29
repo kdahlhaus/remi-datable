@@ -7,7 +7,7 @@ author: Kevin Dahlhausen
 Overview
 --------
 
-A jQuery DataTables widget for the Remi GUI.
+A jQuery [DataTables](https://datatables.net/) widget for the [Remi GUI](https://github.com/dddomodossola/remi).
 
 
 ![ScreenShot](/docs/source/remidatatable.png?raw=true)
