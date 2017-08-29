@@ -62,22 +62,9 @@ class DataTable(gui.Widget):
 
         """
 
-
-        html += """
-           function set_handlers(table)
-            {
-                var col_names=[];
-                $(table.columns().header()).each(function(){ col_names.push(this.innerText); })
-                console.log(col_names);
-                /*table.$("tbody > tr").each(function(){
-                    var col_values=[]
-                */
-            }"""
-
         html += """
             $(document).ready(function(){{
                 var dt = $('#{table_id}').DataTable({{${data_table_options_string}}});
-                $('#{table_id}').on('draw.dt', function(){{ console.log("table #{table_id} redrawn"); set_handlers(dt); }});
             }});
         </script>""".format(table_id=table_id, data_table_options_string=data_table_options_string)
 
