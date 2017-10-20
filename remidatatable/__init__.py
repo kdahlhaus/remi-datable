@@ -53,7 +53,7 @@ class DataTable(gui.Widget):
 
         html += """
             $(document).ready(function(){{
-                var dt = $('#{table_id}').DataTable({{${data_table_options_string}}});
+                var dt = $('#{table_id}').DataTable({{{data_table_options_string}}});
             }});
         </script>""".format(table_id=table_id, data_table_options_string=data_table_options_string)
 
