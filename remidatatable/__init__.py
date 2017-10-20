@@ -15,13 +15,16 @@ class DataTable(gui.Widget):
        return res_path
 
     @gui.decorate_constructor_parameter_types([dict, ])
-    def __init__(self, data_table_options={}, **kwargs):
+    def __init__(self, data_table_options={}, data_table_attributes={},  **kwargs):
         """data_table_options = dictionay of data table options.
            see  https://datatables.net/reference/option/
+           data_table_attributes = attributes on the table itself
+           see https://datatables.net/manual/styling/classes
         """
         self.rows = []
         self.column_headings = []
         self.data_table_options = data_table_options
+        self.data_table_attributes = data_table_attributes
         super(DataTable, self).__init__(**kwargs)
 
     def repr(self, client, changed_widgets={}):
@@ -30,8 +33,8 @@ class DataTable(gui.Widget):
             (k, v) if v is not None else k for k, v in
             self.attributes.items())
         table_id = "%s_table" % (self.attributes["id"])
-
-        html = '<div %s><table id="%s"><thead><tr>' % (attribute_string, table_id)
+        table_attributes = ' '.join('%s="%s"' % (k, v) if v is not None else k for k, v in self.data_table_attributes.items())
+        html = '<div %s><table id="%s" %s ><thead><tr>' % (attribute_string, table_id, table_attributes )
 
         for heading in self.column_headings:
             html += '<th>%s</th>' % heading
